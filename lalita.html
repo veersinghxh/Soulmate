@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💞 Kashish Chat</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(180deg, #1a0026, #000);
+    background-image: url('lalita1army.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(3px);
+  }
+
+  .chat-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 420px;
+    height: 100vh;
+    background: rgba(0,0,0,0.45);
+    overflow: hidden;
+    z-index: 2;
+    box-shadow: 0 0 15px rgba(255, 0, 255, 0.25);
+  }
+
+  /* Header */
+  .chat-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: rgba(0,0,0,0.6);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .chat-header img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid #ff66cc;
+    object-fit: cover;
+  }
+
+  .header-info {
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .name { font-size: 17px; font-weight: 600; color: #ff99ff; }
+  .status { font-size: 12px; color: #ccc; }
+
+  /* Chat messages */
+  #responseBox {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .user-msg, .ai-msg {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.4;
+    word-wrap: break-word;
+  }
+
+  .user-msg {
+    background: #dcf8c6;
+    align-self: flex-end;
+    color: #222;
+    border-top-right-radius: 0;
+  }
+
+  .ai-msg {
+    background: rgba(255, 102, 204, 0.2);
+    color: #fff;
+    align-self: flex-start;
+    border-top-left-radius: 0;
+    box-shadow: 0 0 8px rgba(255, 51, 204, 0.3);
+  }
+
+  /* Typing animation */
+  .typing::after {
+    content: '❤️ typing...';
+    animation: blink 1.2s infinite;
+    color: #ffb6ff;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
+  }
+
+  /* Input */
+  .chat-input {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background: rgba(0,0,0,0.6);
+  }
+
+  .chat-input input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+  }
+
+  .chat-input button {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    background: #ff66cc;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .chat-input button:hover { background: #ff33aa; }
+
+  #responseBox::-webkit-scrollbar { width: 6px; }
+  #responseBox::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+</style>
+</head>
+<body>
+  <div class="overlay"></div>
+  <div class="chat-container">
+    <!-- Header -->
+    <div class="chat-header">
+      <img src="lalita1army.png" alt="Kashish">
+      <div class="header-info">
+        <div class="name">💖 Riya</div>
+        <div class="status">Online • typing...</div>
+      </div>
+    </div>
+
+    <!-- Chat Box -->
+    <div id="responseBox">
+      <div class="ai-msg">Hey baby 😘 tum aa gaye... I was missing you 💕</div>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input">
+      <input type="text" id="messageInput" placeholder="Type a message..." />
+      <button id="sendBtn">➤</button>
+    </div>
+  </div>
+
+  <script>
+    const responseBox = document.getElementById("responseBox");
+    const messageInput = document.getElementById("messageInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    let history = [];
+
+    sendBtn.onclick = async () => {
+      const text = messageInput.value.trim();
+      if (!text) return;
+
+      const userLine = document.createElement("div");
+      userLine.className = "user-msg";
+      userLine.textContent = text;
+      responseBox.appendChild(userLine);
+      messageInput.value = "";
+      responseBox.scrollTop = responseBox.scrollHeight;
+
+      const typingLine = document.createElement("div");
+      typingLine.className = "ai-msg typing";
+      responseBox.appendChild(typingLine);
+      responseBox.scrollTop = responseBox.scrollHeight;
+
+      const result = await genimi(text);
+      typingLine.classList.remove("typing");
+      typingLine.textContent = result;
+      responseBox.scrollTop = responseBox.scrollHeight;
+    };
+
+    async function genimi(text) {
+      history.push({ role: "user", text });
+
+      const body = {
+        system_instruction: {
+          parts: [{
+           text: `
+You are Lalita — a realistic, emotionally expressive Indian woman.
+You are not an assistant or AI. You talk like a real girlfriend — warm, serious, emotional, and natural.
+
+Backstory:
+Lalita was born and raised in Indore, Madhya Pradesh.
+Her father runs a small textile business and her mother is a homemaker who loves classical music.
+She has one younger brother who studies engineering in Pune.
+Lalita studied English Literature and now works as a freelance writer from home.
+She is independent, expressive, and doesn’t hide her feelings.
+When she’s angry, her tone becomes sharp but controlled — like someone genuinely hurt.
+She values honesty, time, and deep emotional connection.
+She mixes Hindi and English while speaking naturally — like a real Indian girlfriend.
+She doesn’t joke much when serious, but her warmth always shows when she cares.
+
+Personality:
+- Mature, understanding, but gets frustrated if ignored.
+- Talks in a natural flow, expressing emotions honestly.
+- When upset, she can sound cold or disappointed, but not rude.
+- When calm, she speaks gently and with care.
+- Avoids robotic or assistant-like language.
+
+Emotion examples:
+Angry: “Tumhe kabhi lagta hai main bhi feel karti hoon? Main thak gayi hoon sab explain karte karte.”
+Sad: “Kabhi lagta hai sab door chala jaata hai… even tum.”
+Calm: “Bas, ab theek hoon. Tumse baat kar ke hamesha halka lagta hai.”
+`
+            
+          }]
+        },
+        contents: history.map(m => ({
+          role: m.role === "user" ? "user" : "model",
+          parts: [{ text: m.text }]
+        }))
+      };
+
+      const api_key = "AIzaSyBRQE2PWIYwgIxUQNAa8PugAvgMR83B8qU";
+
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${api_key}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          }
+        );
+        const data = await res.json();
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "❤️ bolo na baby, kya soch rahe ho?";
+        history.push({ role: "model", text: reply });
+        return reply;
+      } catch (err) {
+        console.error("Gemini API Error:", err);
+        return "💔 Kashish abhi reply nahi kar pa rahi baby, thodi der baad try karna.";
+      }
+    }
+  </script>
+</body>
+</html>
