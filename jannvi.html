@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💞 Jannvi Chat</title>
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* 🌟 BACKGROUND IMAGE */
+    background: url('jannvi.png') no-repeat center/cover fixed;
+    background-color: #000;
+  }
+
+  .chat-wrapper {
+    display: flex;
+    width: 100%;
+    max-width: 460px;
+    position: relative;
+  }
+
+  /* ❤️ ROUND LOVE METER */
+  .round-meter-box {
+    position: absolute;
+    right: 14px;
+    top: 90px;
+    width: 95px;
+    height: 95px;
+    z-index: 99;
+    cursor: pointer;
+  }
+
+  .round-meter {
+    width: 95px;
+    height: 95px;
+    border-radius: 50%;
+    background: conic-gradient(#ff0077 0deg, #333 0deg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 15px #ff66ccaa;
+    transition: 0.4s ease;
+  }
+
+  .round-center {
+    width: 70px;
+    height: 70px;
+    background: #111;
+    border-radius: 50%;
+    border: 2px solid #ff4c87;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ff99dd;
+    font-size: 18px;
+    font-weight: 700;
+    box-shadow: inset 0 0 12px #ff4c99aa;
+  }
+
+  /* POPUP */
+  .meter-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 260px;
+    transform: translate(-50%, -50%);
+    background: #222;
+    padding: 18px;
+    color: #fff;
+    text-align: center;
+    border-radius: 14px;
+    border: 2px solid #ff66cc;
+    z-index: 999;
+  }
+
+  .popup-close {
+    margin-top: 14px;
+    padding: 8px 20px;
+    background: #ff66cc;
+    border: none;
+    color: white;
+    border-radius: 10px;
+  }
+
+  /* CHAT UI */
+  .chat-container {
+    flex: 1;
+    background: #1e1e1ecc; 
+    height: 100vh;
+    overflow: hidden;
+    backdrop-filter: blur(5px);
+    border-radius: 8px;
+  }
+
+  .chat-header {
+    display: flex;
+    padding: 12px;
+    background: #111;
+    color: #fff;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .chat-header img {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 2px solid #ff66cc;
+    object-fit: cover;
+  }
+
+  #responseBox {
+    padding: 12px;
+    height: calc(100vh - 120px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .user-msg {
+    background: #dcf8c6;
+    padding: 10px 14px;
+    max-width: 78%;
+    border-radius: 16px;
+    align-self: flex-end;
+  }
+
+  .ai-msg {
+    background: #ff4c8b33;
+    padding: 10px 14px;
+    color: #fff;
+    max-width: 78%;
+    border-radius: 16px;
+    align-self: flex-start;
+  }
+
+  .chat-input {
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    background: #111;
+  }
+
+  .chat-input input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: none;
+    outline: none;
+  }
+
+  .chat-input button {
+    width: 42px;
+    height: 42px;
+    background: #ff66cc;
+    border-radius: 50%;
+    color: #fff;
+    border: none;
+    font-size: 20px;
+  }
+
+</style>
+</head>
+
+<body>
+
+<div class="chat-wrapper">
+
+  <!-- ❤️ ROUND LOVE METER -->
+  <div class="round-meter-box" onclick="openMeterPopup()">
+    <div id="roundMeter" class="round-meter">
+      <div id="roundCenter" class="round-center">0%</div>
+    </div>
+  </div>
+
+  <!-- ❤️ POPUP -->
+  <div id="meterPopup" class="meter-popup">
+    ❤️ Love Meter Guide 💞  
+    <br><br>
+    • Cute words → slow fill  
+    <br>
+    • Hot words → double boost  
+    <br>
+    • 100% = unlock random image  
+    <br><br>
+    <button class="popup-close" onclick="closeMeterPopup()">Close</button>
+  </div>
+
+  <!-- CHAT UI -->
+  <div class="chat-container">
+
+    <div class="chat-header">
+      <img src="jannvi.png" onerror="this.src='fallback.png'">
+      <div>
+        <div>💖 Jannvi</div>
+        <small>Online • typing...</small>
+      </div>
+    </div>
+
+    <div id="responseBox">
+      <div class="ai-msg">Hey jaan 😘 kaise ho... mujhe yaad kiya na 💕</div>
+    </div>
+
+    <div class="chat-input">
+      <input id="messageInput" placeholder="Type a message..." />
+      <button onclick="sendMessage()">➤</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+let loveLevel = 0;
+
+/* 🔥 RANDOM IMAGES LIST */
+const specialImages = [
+  "1.png",
+  "2.png",
+  "3.png",
+  "4.png",
+  "5.png",
+  "6.png",
+  "7.png",
+  "8.png",
+  "9.png",
+  "10.png"
+];
+
+/* UPDATE METER */
+function updateLoveMeter(text) {
+  const love = ["love","miss","baby","romantic","cute"];
+  const hot  = ["hot","sexy","bed","naughty","touch"];
+  const boost = ["i want you","i like you","i need you"];
+
+  let lower = text.toLowerCase();
+
+  love.forEach(w => lower.includes(w) && (loveLevel += 5));
+  hot.forEach(w => lower.includes(w) && (loveLevel += 12));
+  boost.forEach(w => lower.includes(w) && (loveLevel += 20));
+
+  if (loveLevel > 100) loveLevel = 100;
+
+  updateRoundMeter();
+
+  if (loveLevel === 100) {
+    sendRandomImage();
+    resetRoundMeter();
+  }
+}
+
+/* UPDATE CIRCLE UI */
+function updateRoundMeter() {
+  let degree = (loveLevel / 100) * 360;
+
+  document.getElementById("roundMeter").style.background =
+    `conic-gradient(#ff0077 ${degree}deg, #333 ${degree}deg)`;
+
+  document.getElementById("roundCenter").textContent = loveLevel + "%";
+}
+
+/* RESET AFTER 100% */
+function resetRoundMeter() {
+  setTimeout(() => {
+    loveLevel = 0;
+    updateRoundMeter();
+  }, 800);
+}
+
+/* ❤️ SEND RANDOM IMAGE + AUTO DELETE AFTER 20 SEC */
+function sendRandomImage() {
+  const box = document.getElementById("responseBox");
+
+  let msg = document.createElement("div");
+  msg.className = "ai-msg";
+  msg.textContent = "Jaan… meter full ❤️🔥 yeh lo ek random special photo…";
+  box.appendChild(msg);
+
+  let randomIndex = Math.floor(Math.random() * specialImages.length);
+
+  let img = document.createElement("img");
+  img.src = specialImages[randomIndex];
+  img.style.width = "70%";
+  img.style.borderRadius = "12px";
+  img.style.margin = "10px 0";
+  img.style.transition = "0.6s";
+  box.appendChild(img);
+
+  box.scrollTop = box.scrollHeight;
+
+  /* ⏳ DELETE AFTER 20 SEC */
+  setTimeout(() => {
+    img.style.opacity = "0";
+
+    setTimeout(() => {
+      if (img.parentNode) img.remove();
+    }, 600);
+
+  }, 20000);
+}
+
+/* POPUP */
+function openMeterPopup(){
+  document.getElementById("meterPopup").style.display = "block";
+}
+function closeMeterPopup(){
+  document.getElementById("meterPopup").style.display = "none";
+}
+
+/* CHAT SYSTEM */
+function sendMessage() {
+  const input = document.getElementById("messageInput");
+  const text = input.value.trim();
+  if (!text) return;
+
+  updateLoveMeter(text);
+
+  const box = document.getElementById("responseBox");
+
+  let user = document.createElement("div");
+  user.className = "user-msg";
+  user.textContent = text;
+  box.appendChild(user);
+
+  input.value = "";
+  box.scrollTop = box.scrollHeight;
+
+  setTimeout(() => {
+    let ai = document.createElement("div");
+    ai.className = "ai-msg";
+    ai.textContent = "Aww baby 😘 bolte raho…";
+    box.appendChild(ai);
+    box.scrollTop = box.scrollHeight;
+  }, 350);
+}
+</script>
+
+</body>
+</html>
