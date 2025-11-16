@@ -489,15 +489,14 @@
   
 
   <script>
-    // Check if alert has already been shown
-    if (!localStorage.getItem('feedbackAlertShown')) {
-      setTimeout(function() {
-        alert("Please wait... Redirecting you to the feedback page ❤️");
-        localStorage.setItem('feedbackAlertShown', 'true'); // mark as shown
-        // Optional: redirect after alert
-        window.location.href = 'feedback.html';
-      }, 20000); // 3 seconds
-    }
+     // Show alert only once per visit (tab/browser session)
+if (!sessionStorage.getItem('feedbackAlertShown')) {
+  setTimeout(function() {
+    alert("Please wait... Redirecting you to the feedback page ❤️");
+    sessionStorage.setItem('feedbackAlertShown', 'true'); 
+    window.location.href = 'feedback.html';
+  }, 40000); // 20 seconds
+}
   </script>
 
 </html>
